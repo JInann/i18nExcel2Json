@@ -1,8 +1,9 @@
 {
-	"dependencies": {
-		"xlsx": "^0.18.5"
-	},
-	"devDependencies": {
-		"ali-oss": "^6.20.0"
-	}
+  "type": "module",
+  "dependencies": {
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "ali-oss": "^6.20.0"
+  }
 }
