@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>i18nExcel2Json</title>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+  <style>
+    .result {
+      display: flex;
+    }
+
+    * {
+      user-select: none;
+    }
+
+    pre {
+      user-select: all;
+    }
+  </style>
+</head>
+
+<body>
+  <input type="file" name="" id="fileInput">
+  <a href="./in.xlsx">下载模板文件</a>
+  <button id="copyBtn">复制JSON</button>
+  <div class="result">
+    <div id="TableContainer"></div>
+    <pre id="JSOnContainer"></pre>
+  </div>
+
+  <script>
+    let fileInput = document.querySelector('#fileInput')
+    let JSOnContainer = document.querySelector('#JSOnContainer')
+    let copyBtn = document.querySelector('#copyBtn')
+    let copyJson = '12'
+    copyBtn.addEventListener('click', () => {
+      try {
+        navigator.clipboard.writeText(copyJson)
+      } catch (error) {
+        alert('复制失败！请手动复制')
+      }
+    })
+    fileInput.addEventListener('change', () => {
+      run(fileInput.files[0])
+    })
+    const run = async (file) => {
+      /* replace with the URL of the file */
+      const URL_TO_DOWNLOAD = "https://sheetjs.com/pres.numbers";
+      const ab = await file.arrayBuffer();
+
+      /* Parse file and get first worksheet */
+      const wb = XLSX.read(ab);
+      const wsname = wb.SheetNames[0];
+      const ws = wb.Sheets[wsname];
+
+      /* Generate HTML */
+      var output = document.getElementById("TableContainer");
+      output.innerHTML = XLSX.utils.sheet_to_html(ws);
+
+      const json = toJson(ws)
+      JSOnContainer.innerHTML = json
+      copyJson = json
+      navigator.clipboard.writeText(json)
+    };
+    const toJson = (sheet) => {
+      // 将工作表转换为JSON
+      let data = XLSX.utils.sheet_to_json(sheet);
+      const getLangStr = (str = '') => /[a-z]+/.exec(str)[0];
+      data = data.map((v) => {
+        let temp = {};
+        Object.keys(v).forEach((k) => {
+          temp[getLangStr(k)] = (v[k] + '').replace(/(\r)|(\n)/g, '');
+        });
+        if (temp.code == undefined) {
+          temp.code = temp.zh;
+        }
+        return temp;
+      });
+
+      let temp = {};
+      let lang = Object.keys(data[0]).filter((v) => v != 'code');
+      lang.forEach((k) => (temp[k] = {}));
+      data.forEach((item) => {
+        lang.forEach((l) => {
+          temp[l][item.code] = item[l];
+        });
+      });
+      return JSON.stringify(temp, null, 2)
+    }
+  </script>
+</body>
+
+</html>
