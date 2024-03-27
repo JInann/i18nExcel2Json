@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>i18nExcel2Json</title>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+  <style>
+    .result {
+      display: flex;
+
+    }
+
+    textarea {
+      flex: 1;
+      height: 800px;
+    }
+
+    * {
+      user-select: none;
+    }
+
+    pre {
+      user-select: all;
+    }
+
+    .txt {
+      display: flex;
+    }
+
+    .txt div {
+      flex: 1;
+    }
+  </style>
+</head>
+
+<body>
+  <button id="btn">合并</button>
+  <button id="btn2">复制结果</button>
+  <a href="./index.html">跳转：excel2json</a>
+  <div class="txt">
+    <div>原JSON：</div>
+    <div>新增JSON：</div>
+    <div>结果JSON：</div>
+  </div>
+  <div class="result">
+    <textarea name="" id="j1"></textarea>
+    <textarea name="" id="j2"></textarea>
+    <textarea name="" id="result"></textarea>
+  </div>
+
+  <script>
+    function isObject(item) {
+      return item && typeof item === 'object' && !Array.isArray(item);
+    }
+    function mergeDeep(target, ...sources) {
+      if (!sources.length) return target;
+      const source = sources.shift();
+
+      if (isObject(target) && isObject(source)) {
+        for (const key in source) {
+          if (isObject(source[key])) {
+            if (!target[key]) Object.assign(target, { [key]: {} });
+            mergeDeep(target[key], source[key]);
+          } else {
+            Object.assign(target, { [key]: source[key] });
+          }
+        }
+      }
+      return mergeDeep(target, ...sources);
+    }
+    const j1 = document.querySelector('#j1')
+    const j2 = document.querySelector('#j2')
+    const result = document.querySelector('#result')
+    document.querySelector('#btn').addEventListener('click', () => {
+      let json1 = JSON.parse(j1.value)
+      let json2 = JSON.parse(j2.value)
+      result.value = JSON.stringify(mergeDeep(json1, json2), null, 2)
+      navigator.clipboard.writeText(result.value)
+    })
+    document.querySelector('#btn2').addEventListener('click', () => {
+      try {
+        navigator.clipboard.writeText(result.value)
+      } catch (error) {
+        alert('复制失败，请手动复制')
+      }
+    })
+  </script>
+</body>
+
+</html>
