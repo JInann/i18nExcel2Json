@@ -72,7 +72,7 @@
           temp[getLangStr(k)] = (v[k] + '').replace(/(\r)|(\n)/g, '');
         });
         if (temp.code == undefined) {
-          temp.code = temp.zh;
+          temp.code = temp.zh || temp.en || temp.cn;
         }
         return temp;
       });
