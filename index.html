@@ -63,6 +63,8 @@
       navigator.clipboard.writeText(json)
     };
     const toJson = (sheet) => {
+      let code_key = 0
+      let random_key = Math.random().toString(16).substring(3, 7) + '_'
       // 将工作表转换为JSON
       let data = XLSX.utils.sheet_to_json(sheet);
       const getLangStr = (str = '') => /[a-z]+/.exec(str)[0];
@@ -72,7 +74,7 @@
           temp[getLangStr(k)] = (v[k] + '').replace(/(\r)|(\n)/g, '');
         });
         if (temp.code == undefined) {
-          temp.code = temp.zh || temp.en || temp.cn;
+          temp.code = temp.zh || ('code_' + random_key + (code_key++));
         }
         return temp;
       });
